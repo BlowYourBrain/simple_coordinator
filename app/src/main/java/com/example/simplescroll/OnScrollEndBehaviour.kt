@@ -2,10 +2,10 @@ package com.example.simplescroll
 
 import android.content.Context
 import android.util.AttributeSet
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.view.ScrollingView
 import androidx.core.view.ViewCompat
 import androidx.core.widget.NestedScrollView
 
@@ -17,17 +17,31 @@ class OnScrollEndBehaviour : CoordinatorLayout.Behavior<View> {
 
     private var buttonHeight: Int = 0
 
-    init {
-        Log.d("fuck", "init onScrollEndBehaviour")
+    override fun layoutDependsOn(parent: CoordinatorLayout, child: View, dependency: View): Boolean {
+        return dependency is NestedScrollView
     }
 
-    override fun onLayoutChild(parent: CoordinatorLayout, child: View, layoutDirection: Int): Boolean {
+    override fun onDependentViewChanged(parent: CoordinatorLayout, child: View, dependency: View): Boolean {
         parent.clipChildren = false
         parent.clipToPadding = false
+
         buttonHeight = child.measuredHeight
-        child.x = 0f
+        val scrollChild = (dependency as ViewGroup).getChildAt(0)
+        val parentScrollHeightDifference =
+            parent.measuredHeight - (scrollChild.measuredHeight - scrollChild.paddingBottom)
+
+        if (parentScrollHeightDifference > buttonHeight) {
+            return false
+        }
+
+        if (parentScrollHeightDifference > 0) {
+            child.y = (parent.bottom - parentScrollHeightDifference).toFloat()
+            return true
+        }
+
         child.y = parent.bottom.toFloat()
-        return false
+
+        return true
     }
 
     override fun onStartNestedScroll(
@@ -52,9 +66,11 @@ class OnScrollEndBehaviour : CoordinatorLayout.Behavior<View> {
         type: Int
     ) {
         super.onNestedScroll(coordinatorLayout, child, target, dxConsumed, dyConsumed, dxUnconsumed, dyUnconsumed, type)
-        val scrollChild = (target as ViewGroup).getChildAt(0)
+
+        val scrollViewChild = (target as ViewGroup).getChildAt(0)
         val nestedScrollView: NestedScrollView = (target as NestedScrollView)
-        val diff = scrollChild.bottom - nestedScrollView.height - nestedScrollView.scrollY
+        val diff =
+            scrollViewChild.bottom - nestedScrollView.height - nestedScrollView.scrollY
 
         if (diff <= buttonHeight) {
             child.y = (coordinatorLayout.bottom - buttonHeight + diff).toFloat()

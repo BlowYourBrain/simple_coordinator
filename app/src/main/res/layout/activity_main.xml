@@ -21,51 +21,51 @@
 
             <View
                 android:layout_width="match_parent"
-                android:layout_height="150dp"
+                android:layout_height="50dp"
                 android:layout_margin="12dp"
                 android:background="#0f0" />
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="150dp"
-                android:layout_margin="12dp"
-                android:background="#0f0" />
+<!--            <View-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="150dp"-->
+<!--                android:layout_margin="12dp"-->
+<!--                android:background="#0f0" />-->
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="150dp"
-                android:layout_margin="12dp"
-                android:background="#0f0" />
+<!--            <View-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="150dp"-->
+<!--                android:layout_margin="12dp"-->
+<!--                android:background="#0f0" />-->
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="150dp"
-                android:layout_margin="12dp"
-                android:background="#0f0" />
+<!--            <View-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="150dp"-->
+<!--                android:layout_margin="12dp"-->
+<!--                android:background="#0f0" />-->
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="150dp"
-                android:layout_margin="12dp"
-                android:background="#0f0" />
+<!--            <View-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="150dp"-->
+<!--                android:layout_margin="12dp"-->
+<!--                android:background="#0f0" />-->
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="150dp"
-                android:layout_margin="12dp"
-                android:background="#0f0" />
+<!--            <View-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="150dp"-->
+<!--                android:layout_margin="12dp"-->
+<!--                android:background="#0f0" />-->
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="150dp"
-                android:layout_margin="12dp"
-                android:background="#0f0" />
+<!--            <View-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="150dp"-->
+<!--                android:layout_margin="12dp"-->
+<!--                android:background="#0f0" />-->
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="150dp"
-                android:layout_margin="12dp"
-                android:background="#0f0" />
+<!--            <View-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="150dp"-->
+<!--                android:layout_margin="12dp"-->
+<!--                android:background="#0f0" />-->
         </LinearLayout>
 
     </androidx.core.widget.NestedScrollView>

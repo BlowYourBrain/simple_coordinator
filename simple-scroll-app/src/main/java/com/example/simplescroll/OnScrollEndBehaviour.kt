@@ -5,7 +5,6 @@ import android.util.AttributeSet
 import android.view.View
 import android.view.ViewGroup
 import androidx.coordinatorlayout.widget.CoordinatorLayout
-import androidx.core.view.ScrollingView
 import androidx.core.view.ViewCompat
 import androidx.core.widget.NestedScrollView
 
@@ -26,7 +25,13 @@ class OnScrollEndBehaviour : CoordinatorLayout.Behavior<View> {
         parent.clipToPadding = false
 
         buttonHeight = child.measuredHeight
-        val scrollChild = (dependency as ViewGroup).getChildAt(0)
+
+        val scrollChild = (dependency as ViewGroup).getChildAt(0).apply {
+            if (paddingBottom < buttonHeight) {
+                setPadding(paddingLeft, paddingTop, paddingRight, buttonHeight)
+            }
+        }
+
         val parentScrollHeightDifference =
             parent.measuredHeight - (scrollChild.measuredHeight - scrollChild.paddingBottom)
 
@@ -69,8 +74,8 @@ class OnScrollEndBehaviour : CoordinatorLayout.Behavior<View> {
 
         val scrollViewChild = (target as ViewGroup).getChildAt(0)
         val nestedScrollView: NestedScrollView = (target as NestedScrollView)
-        val diff =
-            scrollViewChild.bottom - nestedScrollView.height - nestedScrollView.scrollY
+
+        val diff = scrollViewChild.bottom - nestedScrollView.height - nestedScrollView.scrollY
 
         if (diff <= buttonHeight) {
             child.y = (coordinatorLayout.bottom - buttonHeight + diff).toFloat()

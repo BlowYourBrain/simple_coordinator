@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mainContainer"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    <com.example.simplescroll.CustomCoordinator
+        android:id="@+id/coordinator"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".MainActivity">
+
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/scrollView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:id="@+id/viewsHolder"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#228"
+                android:orientation="vertical"
+                android:paddingBottom="@dimen/button_height">
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:layout_margin="12dp"
+                    android:background="#0f0" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="150dp"
+                    android:layout_margin="12dp"
+                    android:background="#0f0" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="150dp"
+                    android:layout_margin="12dp"
+                    android:background="#0f0" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="150dp"
+                    android:layout_margin="12dp"
+                    android:background="#0f0" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="150dp"
+                    android:layout_margin="12dp"
+                    android:background="#0f0" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="150dp"
+                    android:layout_margin="12dp"
+                    android:background="#0f0" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="150dp"
+                    android:layout_margin="12dp"
+                    android:background="#0f0" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="150dp"
+                    android:layout_margin="12dp"
+                    android:background="#0f0" />
+            </LinearLayout>
+
+        </androidx.core.widget.NestedScrollView>
+
+    </com.example.simplescroll.CustomCoordinator>
+
+    <Button
+        android:id="@+id/primaryButton"
+        android:layout_width="80dp"
+        android:layout_height="@dimen/button_height"
+        android:layout_gravity="bottom|center_horizontal"
+        android:background="#f00"
+        android:text="button" />
+
+</FrameLayout>
+

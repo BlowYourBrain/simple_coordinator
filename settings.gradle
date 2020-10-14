@@ -1,2 +1,2 @@
-include ':app'
+include ':simple-scroll-app'
 rootProject.name='SimpleScroll'

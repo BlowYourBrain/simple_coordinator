@@ -14,27 +14,8 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.swipe_refresh_activity_layout)
         swipeContainer.swipeRefreshProgressCallback = {
             Log.d("fuck", "progress = $it")
+//            progress.text = "progress = ${it * 100}%"
         }
-//
-//        mainContainer.clipChildren = false
-//        mainContainer.clipToPadding = false
-//
-//        mainContainer.viewTreeObserver.addOnGlobalLayoutListener {
-//            calculateButtonPosition()
-//        }
-//
-//        coordinator.onScrollListener = { scrollView, scrollViewChild ->
-//
-//            val diff =
-//                scrollViewChild.bottom - scrollView.height - scrollView.scrollY
-//
-//            if (diff <= primaryButton.measuredHeight) {
-//                primaryButton.y = (mainContainer.bottom - primaryButton.measuredHeight + diff).toFloat()
-//            } else if (primaryButton.y < mainContainer.bottom) {
-//                primaryButton.y = mainContainer.bottom.toFloat()
-//            }
-//
-//        }
 
     }
 

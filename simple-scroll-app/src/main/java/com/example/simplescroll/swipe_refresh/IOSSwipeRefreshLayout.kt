@@ -18,8 +18,8 @@ class IOSSwipeRefreshLayout @JvmOverloads constructor(
     attrs: AttributeSet? = null
 ) : FrameLayout(context, attrs), NestedScrollingParent {
 
-    private var scrollDistance: Float = 0f
-    private var consumedScrollDistance: Float = 0f
+    private var scrollDistance: Int = 0
+    private var consumedScrollDistance: Int = 0
 
     private var scrollableChild: View? = null
     private val internalHierarchyChangeListener = InternalOnHierarchyChangeListener()
@@ -43,8 +43,7 @@ class IOSSwipeRefreshLayout @JvmOverloads constructor(
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         //обновляем значение scrollDistance т.к. изменен размер контейнера.
-
-        scrollDistance = h.toFloat() / 2
+        scrollDistance = h / 2
     }
 
     private val animation = object : Animation() {
@@ -52,7 +51,7 @@ class IOSSwipeRefreshLayout @JvmOverloads constructor(
             scrollableChild?.let {
                 val endTarget = 0
                 val from = consumedScrollDistance
-                val targetTop = from + ((endTarget - from) * interpolatedTime)
+                val targetTop = from + ((endTarget - from) * interpolatedTime).toInt()
                 val offset = (targetTop - it.top).toInt()
                 ViewCompat.offsetTopAndBottom(it, offset)
                 calculateProgress(targetTop, scrollDistance)
@@ -68,7 +67,7 @@ class IOSSwipeRefreshLayout @JvmOverloads constructor(
             override fun onAnimationStart(animation: Animation?) {}
 
             override fun onAnimationEnd(animation: Animation?) {
-                consumedScrollDistance = 0f
+                consumedScrollDistance = 0
             }
         })
     }
@@ -112,7 +111,7 @@ class IOSSwipeRefreshLayout @JvmOverloads constructor(
     override fun onNestedPreScroll(target: View, dx: Int, dy: Int, consumed: IntArray) {
         Log.d("fuck", "onNestedPreScroll dy = $dy, consumed[1] = ${consumed[1]}")
         if (dy > 0 && consumedScrollDistance > scrollDistance) {
-            consumedScrollDistance = 0f
+            consumedScrollDistance = 0
         }
 
         if (dy < 0 && consumedScrollDistance <= scrollDistance) {
@@ -123,7 +122,7 @@ class IOSSwipeRefreshLayout @JvmOverloads constructor(
             val consume = if (couldConsume) {
                 dy
             } else {
-                -availableConsumeDistance.toInt()
+                -availableConsumeDistance
             }
 
             //добавляем к пройденному пути путь, который будет обработан.
@@ -131,6 +130,21 @@ class IOSSwipeRefreshLayout @JvmOverloads constructor(
 
             consumed[1] = consume
 
+            scrollableChild?.let { nonNullView ->
+                ViewCompat.offsetTopAndBottom(nonNullView, -consume)
+                calculateProgress(consumedScrollDistance, scrollDistance)
+            }
+        } else {
+            val availableConsumeDistance = consumedScrollDistance
+            val couldConsume = availableConsumeDistance - dy >= 0
+            val consume = if (couldConsume) {
+                dy
+            } else {
+                availableConsumeDistance
+            }
+
+            consumedScrollDistance -= consume
+            consumed[1] = consume
             scrollableChild?.let { nonNullView ->
                 ViewCompat.offsetTopAndBottom(nonNullView, -consume)
                 calculateProgress(consumedScrollDistance, scrollDistance)
@@ -143,8 +157,8 @@ class IOSSwipeRefreshLayout @JvmOverloads constructor(
         scrollableChild = children.find { it is NestedScrollingParent2 }
     }
 
-    private fun calculateProgress(offsetDistance: Float, totalDistance: Float) {
-        val progress = offsetDistance / totalDistance
+    private fun calculateProgress(offsetDistance: Int, totalDistance: Int) {
+        val progress = offsetDistance.toFloat() / totalDistance
         swipeRefreshProgressCallback?.invoke(progress)
     }
 

@@ -5,8 +5,9 @@ import android.util.AttributeSet
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
-import android.view.animation.Interpolator
+import android.view.animation.Animation
 import android.view.animation.LinearInterpolator
+import android.view.animation.Transformation
 import android.widget.FrameLayout
 import androidx.core.view.*
 
@@ -22,14 +23,12 @@ class IOSSwipeRefreshLayout @JvmOverloads constructor(
 
     private var scrollableChild: View? = null
     private val internalHierarchyChangeListener = InternalOnHierarchyChangeListener()
-    private val interpolator: Interpolator = LinearInterpolator()
-
     private val nestedScrollingParentHelper = NestedScrollingParentHelper(this)
 
     /**
-     * Значение от 0 до 100.
-     * При значении 0 прогресс swipe-to-refresh равен 0,
-     * При значении 100 прогресс соответственно 100.
+     * Значение от 0f до 1.0f
+     * При значении 0 прогресс swipe-to-refresh равен 0%,
+     * При значении 1.0f прогресс соответственно 100%.
      * */
     var swipeRefreshProgressCallback: ((progress: Float) -> Unit)? = null
 
@@ -44,13 +43,40 @@ class IOSSwipeRefreshLayout @JvmOverloads constructor(
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         //обновляем значение scrollDistance т.к. изменен размер контейнера.
+
         scrollDistance = h.toFloat() / 2
+    }
+
+    private val animation = object : Animation() {
+        override fun applyTransformation(interpolatedTime: Float, t: Transformation?) {
+            scrollableChild?.let {
+                val endTarget = 0
+                val from = consumedScrollDistance
+                val targetTop = from + ((endTarget - from) * interpolatedTime)
+                val offset = (targetTop - it.top).toInt()
+                ViewCompat.offsetTopAndBottom(it, offset)
+                calculateProgress(targetTop, scrollDistance)
+            }
+        }
+
+    }.apply {
+        duration = 150
+        interpolator = LinearInterpolator()
+        setAnimationListener(object : Animation.AnimationListener {
+            override fun onAnimationRepeat(animation: Animation?) {}
+
+            override fun onAnimationStart(animation: Animation?) {}
+
+            override fun onAnimationEnd(animation: Animation?) {
+                consumedScrollDistance = 0f
+            }
+        })
     }
 
     //region NestedScrollingParent
     override fun onStartNestedScroll(child: View, target: View, axes: Int): Boolean {
         Log.d("fuck", "onStartNestedScroll")
-        return isEnabled && (axes and ViewCompat.SCROLL_AXIS_VERTICAL) != 0
+        return isEnabled && !(animation.hasStarted() xor animation.hasEnded()) && (axes and ViewCompat.SCROLL_AXIS_VERTICAL) != 0
     }
 
     override fun onNestedScrollAccepted(child: View, target: View, axes: Int) {
@@ -61,6 +87,12 @@ class IOSSwipeRefreshLayout @JvmOverloads constructor(
     override fun onStopNestedScroll(target: View) {
         Log.d("fuck", "onStopNestedScroll")
         nestedScrollingParentHelper.onStopNestedScroll(target)
+        animation.apply {
+            reset()
+
+        }
+
+        scrollableChild?.startAnimation(animation)
     }
 
     override fun getNestedScrollAxes(): Int {
@@ -101,7 +133,7 @@ class IOSSwipeRefreshLayout @JvmOverloads constructor(
 
             scrollableChild?.let { nonNullView ->
                 ViewCompat.offsetTopAndBottom(nonNullView, -consume)
-                calculateProgress()
+                calculateProgress(consumedScrollDistance, scrollDistance)
             }
         }
     }
@@ -111,8 +143,8 @@ class IOSSwipeRefreshLayout @JvmOverloads constructor(
         scrollableChild = children.find { it is NestedScrollingParent2 }
     }
 
-    private fun calculateProgress() {
-        val progress = consumedScrollDistance / scrollDistance
+    private fun calculateProgress(offsetDistance: Float, totalDistance: Float) {
+        val progress = offsetDistance / totalDistance
         swipeRefreshProgressCallback?.invoke(progress)
     }
 

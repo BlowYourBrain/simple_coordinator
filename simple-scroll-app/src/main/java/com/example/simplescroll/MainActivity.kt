@@ -14,7 +14,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(R.layout.swipe_refresh_activity_layout)
         swipeContainer.swipeRefreshProgressCallback = {
             Log.d("fuck", "progress = $it")
-//            progress.text = "progress = ${it * 100}%"
+            progress.text = "progress = ${it * 100}%"
         }
 
     }

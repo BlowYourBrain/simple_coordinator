@@ -52,7 +52,7 @@ class IOSSwipeRefreshLayout @JvmOverloads constructor(
                 val endTarget = 0
                 val from = consumedScrollDistance
                 val targetTop = from + ((endTarget - from) * interpolatedTime).toInt()
-                val offset = (targetTop - it.top).toInt()
+                val offset = (targetTop - it.top)
                 ViewCompat.offsetTopAndBottom(it, offset)
                 calculateProgress(targetTop, scrollDistance)
             }
@@ -131,6 +131,7 @@ class IOSSwipeRefreshLayout @JvmOverloads constructor(
             consumed[1] = consume
 
             scrollableChild?.let { nonNullView ->
+                Log.d("fuck", "i'm scroll view! with offset: $consume")
                 ViewCompat.offsetTopAndBottom(nonNullView, -consume)
                 calculateProgress(consumedScrollDistance, scrollDistance)
             }

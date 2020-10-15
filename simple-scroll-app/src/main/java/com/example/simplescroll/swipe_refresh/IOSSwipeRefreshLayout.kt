@@ -30,6 +30,7 @@ class IOSSwipeRefreshLayout @JvmOverloads constructor(
     private var consumedScrollDistance: Int = 0
 
     private var scrollableChild: View? = null
+    private var isScrollConsuming: Boolean = false
     private var firstScrollDirection: Int = UNDEFINED
     private val internalHierarchyChangeListener = InternalOnHierarchyChangeListener()
     private val nestedScrollingParentHelper = NestedScrollingParentHelper(this)
@@ -80,11 +81,10 @@ class IOSSwipeRefreshLayout @JvmOverloads constructor(
             }
 
             override fun onAnimationEnd(animation: Animation?) {
-
+                isScrollConsuming = false
             }
 
             override fun onAnimationStart(animation: Animation?) {
-                scrollableChild?.let { (it as ScrollingView) }
             }
         })
     }
@@ -150,6 +150,7 @@ class IOSSwipeRefreshLayout @JvmOverloads constructor(
             consumed[1] = consume
 
             scrollableChild?.let { nonNullView ->
+                isScrollConsuming = true
                 ViewCompat.offsetTopAndBottom(nonNullView, -consume)
                 calculateProgress(consumedScrollDistance, scrollDistance)
             }
@@ -168,6 +169,7 @@ class IOSSwipeRefreshLayout @JvmOverloads constructor(
 
             consumed[1] = dy
             scrollableChild?.let { nonNullView ->
+                isScrollConsuming = true
                 ViewCompat.offsetTopAndBottom(nonNullView, -consume)
                 calculateProgress(consumedScrollDistance, scrollDistance)
             }
@@ -185,17 +187,11 @@ class IOSSwipeRefreshLayout @JvmOverloads constructor(
     }
 
     override fun onNestedPreFling(target: View?, velocityX: Float, velocityY: Float): Boolean {
-        Log.d("fuck", "onNestedPreFling invoke")
-        return super.onNestedPreFling(target, velocityX, velocityY)
-    }
+        if (isScrollConsuming) {
+            return true
+        }
 
-    override fun onNestedFling(
-        target: View?,
-        velocityX: Float,
-        velocityY: Float,
-        consumed: Boolean
-    ): Boolean {
-        return super.onNestedFling(target, velocityX, velocityY, consumed)
+        return super.onNestedPreFling(target, velocityX, velocityY)
     }
 //    //endregion
 

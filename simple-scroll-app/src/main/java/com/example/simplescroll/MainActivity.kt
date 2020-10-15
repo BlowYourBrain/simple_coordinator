@@ -3,6 +3,7 @@ package com.example.simplescroll
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.swipe_refresh_activity_layout.*
@@ -12,9 +13,14 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.swipe_refresh_activity_layout)
-        swipeContainer.swipeRefreshProgressCallback = {
-            Log.d("fuck", "progress = $it")
-            progress.text = "progress = ${it * 100}%"
+        swipeContainer.run {
+            swipeRefreshProgressCallback = {
+                Log.d("fuck", "progress = $it")
+                progress.text = "progress = ${it * 100}%"
+            }
+            onRefreshCallback = {
+                Toast.makeText(this@MainActivity, "refresh", Toast.LENGTH_SHORT).show()
+            }
         }
 
     }

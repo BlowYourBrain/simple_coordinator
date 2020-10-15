@@ -2,6 +2,7 @@ package com.example.simplescroll.swipe_refresh
 
 import android.content.Context
 import android.util.AttributeSet
+import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
@@ -12,6 +13,7 @@ import android.widget.FrameLayout
 import androidx.core.view.*
 
 private const val AVAILABLE_SCROLL = 0.5f
+private const val REFRESH_DETERMINANT_COEFFICIENT = 0.5F
 
 class IOSSwipeRefreshLayout @JvmOverloads constructor(
     context: Context,
@@ -31,6 +33,11 @@ class IOSSwipeRefreshLayout @JvmOverloads constructor(
      * При значении 1.0f прогресс соответственно 100%.
      * */
     var swipeRefreshProgressCallback: ((progress: Float) -> Unit)? = null
+
+    /**
+     * Callback, срабатывающий если пользователь достаточно провел пальцем по swipe-to-refresh.
+     * */
+    var onRefreshCallback: (() -> Unit)? = null
 
     init {
         super.setOnHierarchyChangeListener(internalHierarchyChangeListener)
@@ -86,6 +93,9 @@ class IOSSwipeRefreshLayout @JvmOverloads constructor(
         animation.reset()
 
         if (consumedScrollDistance > 0){
+            if (shouldInvokeRefreshCallback()){
+                onRefreshCallback?.invoke()
+            }
             scrollableChild?.startAnimation(animation)
         }
     }
@@ -120,6 +130,30 @@ class IOSSwipeRefreshLayout @JvmOverloads constructor(
                 calculateProgress(consumedScrollDistance, scrollDistance)
             }
         }
+
+        if (dy > 0 && consumedScrollDistance > 0) {
+            val availableConsumeDistance = consumedScrollDistance
+            val couldConsume = availableConsumeDistance - dy >= 0
+            val consume = if (couldConsume) {
+                dy
+            } else {
+                availableConsumeDistance
+            }
+            consumedScrollDistance -= consume
+
+            Log.d("fuck", "up scrolling" +
+                    "consumedScrollDistance = $consumedScrollDistance" +
+                    "availableConsumeDistance = $availableConsumeDistance, " +
+                    "couldConsume = $couldConsume, " +
+                    "dy = $dy, ")
+
+            consumed[1] = consume
+            scrollableChild?.let { nonNullView ->
+                Log.d("fuck", "scroll up with $consume")
+                ViewCompat.offsetTopAndBottom(nonNullView, -consume)
+                calculateProgress(consumedScrollDistance, scrollDistance)
+            }
+        }
     }
 //    //endregion
 
@@ -131,6 +165,10 @@ class IOSSwipeRefreshLayout @JvmOverloads constructor(
     private fun calculateProgress(offsetDistance: Int, totalDistance: Int) {
         val progress = offsetDistance.toFloat() / totalDistance
         swipeRefreshProgressCallback?.invoke(progress)
+    }
+
+    private fun shouldInvokeRefreshCallback(): Boolean{
+        return consumedScrollDistance.toFloat() / scrollDistance >= REFRESH_DETERMINANT_COEFFICIENT
     }
 
 }

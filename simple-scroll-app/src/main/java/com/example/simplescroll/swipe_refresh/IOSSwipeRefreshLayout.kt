@@ -2,17 +2,16 @@ package com.example.simplescroll.swipe_refresh
 
 import android.content.Context
 import android.util.AttributeSet
-import android.util.Log
-import android.view.MotionEvent
-import android.view.MotionEvent.*
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.Animation
-import android.view.animation.LinearInterpolator
 import android.view.animation.Transformation
 import android.widget.FrameLayout
-import android.widget.ScrollView
-import androidx.core.view.*
+import androidx.core.view.NestedScrollingParentHelper
+import androidx.core.view.ScrollingView
+import androidx.core.view.ViewCompat
+import androidx.core.view.children
 
 private const val AVAILABLE_SCROLL = 0.5f
 private const val REFRESH_DETERMINANT_COEFFICIENT = 0.5F
@@ -75,7 +74,7 @@ class IOSSwipeRefreshLayout @JvmOverloads constructor(
         }
     }.apply {
         duration = 150
-        interpolator = LinearInterpolator()
+        interpolator = AccelerateDecelerateInterpolator()
         setAnimationListener(object : Animation.AnimationListener {
             override fun onAnimationRepeat(animation: Animation?) {
             }

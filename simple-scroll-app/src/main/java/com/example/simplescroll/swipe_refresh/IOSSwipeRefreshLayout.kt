@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.AttributeSet
 import android.util.Log
 import android.view.MotionEvent
+import android.view.MotionEvent.*
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
@@ -22,8 +23,11 @@ class IOSSwipeRefreshLayout @JvmOverloads constructor(
 
     private var scrollDistance: Int = 0
     private var consumedScrollDistance: Int = 0
-    private var isAnimationInProgress = false
+
+    private var lastKnownYPosition: Float = 0f
+
     private var scrollableChild: View? = null
+    private var isDraggingUpOverScroll: Boolean = false
     private val internalHierarchyChangeListener = InternalOnHierarchyChangeListener()
     private val nestedScrollingParentHelper = NestedScrollingParentHelper(this)
 
@@ -53,8 +57,48 @@ class IOSSwipeRefreshLayout @JvmOverloads constructor(
         scrollDistance = h / 2
     }
 
-    override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
-        return isAnimationInProgress
+    override fun onInterceptTouchEvent(event: MotionEvent): Boolean {
+        val ev = event.actionMasked
+        if (ev != ACTION_MOVE) {
+            isDraggingUpOverScroll = false
+            Log.d("fuck", "isDraggingUpOverScroll = false (onInterceptTouch)")
+        }
+
+        if (isDraggingUpOverScroll) {
+            lastKnownYPosition = event.y
+        }
+        Log.d("fuck", "invoke onInterceptTouchEvent")
+        return isDraggingUpOverScroll
+    }
+
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        if (super.onTouchEvent(event)) {
+            return true
+        }
+
+        val ev = event.actionMasked
+        Log.d("fuck", "action: $ev")
+        when (ev) {
+            ACTION_MOVE -> {
+                if (isUpDirection(event)) {
+                    isDraggingUpOverScroll = false
+                }
+            }
+            else -> {
+                Log.d("fuck", "isDraggingUpOverScroll = false")
+                isDraggingUpOverScroll = false
+            }
+        }
+
+        return isDraggingUpOverScroll
+    }
+
+    private fun isUpDirection(newPosition: MotionEvent): Boolean {
+        val newYPosition = newPosition.y
+        val isUpDirection = lastKnownYPosition - newYPosition >= 0
+        Log.d("fuck", "isUpDirection = $isUpDirection")
+        lastKnownYPosition = newYPosition
+        return isUpDirection
     }
 
     private val animation = object : Animation() {
@@ -74,12 +118,19 @@ class IOSSwipeRefreshLayout @JvmOverloads constructor(
         interpolator = LinearInterpolator()
     }
 
-//    //region NestedScrollingParent
+    //    //region NestedScrollingParent
     override fun onStartNestedScroll(child: View, target: View, axes: Int): Boolean {
         return isEnabled
-                && !(animation.hasStarted() xor animation.hasEnded())
+                && !isAnimationRunning()
                 && (axes and ViewCompat.SCROLL_AXIS_VERTICAL) != 0
                 && !(scrollableChild?.canScrollVertically(-1) ?: true)
+    }
+
+    private fun isAnimationRunning() = animation.hasStarted() xor animation.hasEnded()
+
+
+    override fun requestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {
+//        super.requestDisallowInterceptTouchEvent(disallowIntercept)
     }
 
     override fun onNestedScrollAccepted(child: View, target: View, axes: Int) {
@@ -92,8 +143,8 @@ class IOSSwipeRefreshLayout @JvmOverloads constructor(
         animation.cancel()
         animation.reset()
 
-        if (consumedScrollDistance > 0){
-            if (shouldInvokeRefreshCallback()){
+        if (consumedScrollDistance > 0) {
+            if (shouldInvokeRefreshCallback()) {
                 onRefreshCallback?.invoke()
             }
             scrollableChild?.startAnimation(animation)
@@ -109,6 +160,7 @@ class IOSSwipeRefreshLayout @JvmOverloads constructor(
             consumedScrollDistance = 0
         }
 
+        //движение пальца сверху вниз
         if (dy < 0 && consumedScrollDistance <= scrollDistance) {
             val availableConsumeDistance = scrollDistance - consumedScrollDistance
 
@@ -131,6 +183,7 @@ class IOSSwipeRefreshLayout @JvmOverloads constructor(
             }
         }
 
+        //движение пальца снизу вверх
         if (dy > 0 && consumedScrollDistance > 0) {
             val availableConsumeDistance = consumedScrollDistance
             val couldConsume = availableConsumeDistance - dy >= 0
@@ -141,15 +194,14 @@ class IOSSwipeRefreshLayout @JvmOverloads constructor(
             }
             consumedScrollDistance -= consume
 
-            Log.d("fuck", "up scrolling" +
-                    "consumedScrollDistance = $consumedScrollDistance" +
-                    "availableConsumeDistance = $availableConsumeDistance, " +
-                    "couldConsume = $couldConsume, " +
-                    "dy = $dy, ")
+            if (consumedScrollDistance == 0) {
+                isDraggingUpOverScroll = true
+                Log.d("fuck", "isDraggingUpOverScroll = true")
+            }
 
-            consumed[1] = consume
+            consumed[1] = dy
             scrollableChild?.let { nonNullView ->
-                Log.d("fuck", "scroll up with $consume")
+//                Log.d("fuck", "scroll up with $consume")
                 ViewCompat.offsetTopAndBottom(nonNullView, -consume)
                 calculateProgress(consumedScrollDistance, scrollDistance)
             }
@@ -167,7 +219,7 @@ class IOSSwipeRefreshLayout @JvmOverloads constructor(
         swipeRefreshProgressCallback?.invoke(progress)
     }
 
-    private fun shouldInvokeRefreshCallback(): Boolean{
+    private fun shouldInvokeRefreshCallback(): Boolean {
         return consumedScrollDistance.toFloat() / scrollDistance >= REFRESH_DETERMINANT_COEFFICIENT
     }
 

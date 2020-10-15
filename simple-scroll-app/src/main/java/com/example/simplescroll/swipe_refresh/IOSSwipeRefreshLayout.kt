@@ -11,10 +11,15 @@ import android.view.animation.Animation
 import android.view.animation.LinearInterpolator
 import android.view.animation.Transformation
 import android.widget.FrameLayout
+import android.widget.ScrollView
 import androidx.core.view.*
 
 private const val AVAILABLE_SCROLL = 0.5f
 private const val REFRESH_DETERMINANT_COEFFICIENT = 0.5F
+
+private const val UNDEFINED = -1
+private const val SCROLL_UP = 0
+private const val SCROLL_DOWN = 1
 
 class IOSSwipeRefreshLayout @JvmOverloads constructor(
     context: Context,
@@ -27,9 +32,11 @@ class IOSSwipeRefreshLayout @JvmOverloads constructor(
     private var lastKnownYPosition: Float = 0f
 
     private var scrollableChild: View? = null
+    private var firstScrollDirection: Int = UNDEFINED
     private var isDraggingUpOverScroll: Boolean = false
     private val internalHierarchyChangeListener = InternalOnHierarchyChangeListener()
     private val nestedScrollingParentHelper = NestedScrollingParentHelper(this)
+
 
     /**
      * Значение от 0f до 1.0f
@@ -112,10 +119,21 @@ class IOSSwipeRefreshLayout @JvmOverloads constructor(
                 calculateProgress(targetTop, scrollDistance)
             }
         }
-
     }.apply {
         duration = 150
         interpolator = LinearInterpolator()
+        setAnimationListener(object : Animation.AnimationListener {
+            override fun onAnimationRepeat(animation: Animation?) {
+            }
+
+            override fun onAnimationEnd(animation: Animation?) {
+
+            }
+
+            override fun onAnimationStart(animation: Animation?) {
+                scrollableChild?.let { (it as ScrollingView) }
+            }
+        })
     }
 
     //    //region NestedScrollingParent
@@ -123,7 +141,11 @@ class IOSSwipeRefreshLayout @JvmOverloads constructor(
         return isEnabled
                 && !isAnimationRunning()
                 && (axes and ViewCompat.SCROLL_AXIS_VERTICAL) != 0
-                && !(scrollableChild?.canScrollVertically(-1) ?: true)
+                && canScrollDown()
+    }
+
+    private fun canScrollDown(): Boolean {
+        return (scrollableChild?.canScrollVertically(1) ?: false)
     }
 
     private fun isAnimationRunning() = animation.hasStarted() xor animation.hasEnded()
@@ -135,6 +157,7 @@ class IOSSwipeRefreshLayout @JvmOverloads constructor(
 
     override fun onNestedScrollAccepted(child: View, target: View, axes: Int) {
         consumedScrollDistance = 0
+        firstScrollDirection = UNDEFINED
         nestedScrollingParentHelper.onNestedScrollAccepted(child, target, axes)
     }
 
@@ -155,13 +178,14 @@ class IOSSwipeRefreshLayout @JvmOverloads constructor(
         return nestedScrollingParentHelper.nestedScrollAxes
     }
 
-    override fun onNestedPreScroll(target: View, dx: Int, dy: Int, consumed: IntArray) {
-        if (dy > 0 && consumedScrollDistance > scrollDistance) {
-            consumedScrollDistance = 0
-        }
+    private fun hasChildReachTop(): Boolean {
+        return scrollableChild?.let { (it as ScrollingView).computeVerticalScrollOffset() == 0 }
+            ?: false
+    }
 
+    override fun onNestedPreScroll(target: View, dx: Int, dy: Int, consumed: IntArray) {
         //движение пальца сверху вниз
-        if (dy < 0 && consumedScrollDistance <= scrollDistance) {
+        if (dy < 0 && consumedScrollDistance <= scrollDistance && hasChildReachTop()) {
             val availableConsumeDistance = scrollDistance - consumedScrollDistance
 
             //т.к. dy < 0, то по сути выражение эквивалентно availableConsumeDistance - dy
@@ -196,16 +220,42 @@ class IOSSwipeRefreshLayout @JvmOverloads constructor(
 
             if (consumedScrollDistance == 0) {
                 isDraggingUpOverScroll = true
-                Log.d("fuck", "isDraggingUpOverScroll = true")
             }
 
             consumed[1] = dy
             scrollableChild?.let { nonNullView ->
-//                Log.d("fuck", "scroll up with $consume")
                 ViewCompat.offsetTopAndBottom(nonNullView, -consume)
                 calculateProgress(consumedScrollDistance, scrollDistance)
             }
         }
+
+        if (firstScrollDirection == UNDEFINED) {
+            if (dy > 0) {
+                firstScrollDirection = SCROLL_UP
+            }
+
+            if (dy < 0) {
+                firstScrollDirection = SCROLL_DOWN
+            }
+        }
+    }
+
+    override fun onNestedPreFling(target: View?, velocityX: Float, velocityY: Float): Boolean {
+        Log.d("fuck", "onNestedPreFling invoke")
+        if (isDraggingUpOverScroll) {
+            return false
+        } else {
+            return super.onNestedPreFling(target, velocityX, velocityY)
+        }
+    }
+
+    override fun onNestedFling(
+        target: View?,
+        velocityX: Float,
+        velocityY: Float,
+        consumed: Boolean
+    ): Boolean {
+        return super.onNestedFling(target, velocityX, velocityY, consumed)
     }
 //    //endregion
 

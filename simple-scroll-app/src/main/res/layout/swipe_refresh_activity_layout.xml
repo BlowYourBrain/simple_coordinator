@@ -10,10 +10,11 @@
         android:layout_width="100dp"
         android:layout_height="200dp"
         android:layout_gravity="center_horizontal"
-        android:text="i'm dumb textview"
-        android:layout_marginTop="64dp" />
+        android:layout_marginTop="64dp"
+        android:text="i'm dumb textview" />
 
     <androidx.core.widget.NestedScrollView
+        android:id="@+id/nestedScrollview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/colorAccent">
@@ -21,7 +22,9 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Hello world!" />
+            android:padding="12dp"
+            android:text="@string/loren_ipsum"
+            android:textSize="42sp" />
     </androidx.core.widget.NestedScrollView>
 
 

@@ -2,7 +2,6 @@ package com.example.simplescroll.swipe_refresh
 
 import android.content.Context
 import android.util.AttributeSet
-import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
@@ -66,20 +65,10 @@ class IOSSwipeRefreshLayout @JvmOverloads constructor(
     }.apply {
         duration = 150
         interpolator = LinearInterpolator()
-//        setAnimationListener(object : Animation.AnimationListener {
-//            override fun onAnimationRepeat(animation: Animation?) {}
-//
-//            override fun onAnimationStart(animation: Animation?) {}
-//
-//            override fun onAnimationEnd(animation: Animation?) {
-////
-//            }
-//        })
     }
 
 //    //region NestedScrollingParent
     override fun onStartNestedScroll(child: View, target: View, axes: Int): Boolean {
-        Log.d("fuck", "onStartNestedScroll")
         return isEnabled
                 && !(animation.hasStarted() xor animation.hasEnded())
                 && (axes and ViewCompat.SCROLL_AXIS_VERTICAL) != 0
@@ -87,14 +76,11 @@ class IOSSwipeRefreshLayout @JvmOverloads constructor(
     }
 
     override fun onNestedScrollAccepted(child: View, target: View, axes: Int) {
-        Log.d("fuck", "onNestedScrollAccepted")
-        //по идее здесь можно сделать сброс
         consumedScrollDistance = 0
         nestedScrollingParentHelper.onNestedScrollAccepted(child, target, axes)
     }
 
     override fun onStopNestedScroll(target: View) {
-        Log.d("fuck", "onStopNestedScroll consumedScrollDistance = $consumedScrollDistance")
         nestedScrollingParentHelper.onStopNestedScroll(target)
         animation.cancel()
         animation.reset()
@@ -108,18 +94,7 @@ class IOSSwipeRefreshLayout @JvmOverloads constructor(
         return nestedScrollingParentHelper.nestedScrollAxes
     }
 
-    override fun onNestedScroll(
-        target: View,
-        dxConsumed: Int,
-        dyConsumed: Int,
-        dxUnconsumed: Int,
-        dyUnconsumed: Int
-    ) {
-        Log.d("fuck", "onNestedScroll dyConsumed = $dyConsumed, dyUnConsumed = $dyUnconsumed")
-    }
-
     override fun onNestedPreScroll(target: View, dx: Int, dy: Int, consumed: IntArray) {
-        Log.d("fuck", "onNestedPreScroll dy = $dy, consumed[1] = ${consumed[1]}")
         if (dy > 0 && consumedScrollDistance > scrollDistance) {
             consumedScrollDistance = 0
         }
@@ -145,30 +120,6 @@ class IOSSwipeRefreshLayout @JvmOverloads constructor(
                 calculateProgress(consumedScrollDistance, scrollDistance)
             }
         }
-
-//        if (dy > 0 && consumedScrollDistance > 0) {
-//            val availableConsumeDistance = consumedScrollDistance
-//            val couldConsume = availableConsumeDistance - dy >= 0
-//            val consume = if (couldConsume) {
-//                dy
-//            } else {
-//                availableConsumeDistance
-//            }
-//            consumedScrollDistance -= consume
-//
-//            Log.d("fuck", "up scrolling" +
-//                    "consumedScrollDistance = $consumedScrollDistance" +
-//                    "availableConsumeDistance = $availableConsumeDistance, " +
-//                    "couldConsume = $couldConsume, " +
-//                    "dy = $dy, ")
-//
-//            consumed[1] = consume
-//            scrollableChild?.let { nonNullView ->
-//                Log.d("fuck", "scroll up with $consume")
-//                ViewCompat.offsetTopAndBottom(nonNullView, -consume)
-//                calculateProgress(consumedScrollDistance, scrollDistance)
-//            }
-//        }
     }
 //    //endregion
 

@@ -8,13 +8,10 @@ import android.view.animation.AccelerateDecelerateInterpolator
 import android.view.animation.Animation
 import android.view.animation.Transformation
 import android.widget.FrameLayout
-import androidx.core.view.NestedScrollingParentHelper
-import androidx.core.view.ScrollingView
-import androidx.core.view.ViewCompat
-import androidx.core.view.children
+import androidx.core.view.*
 
-private const val AVAILABLE_SCROLL = 0.5f
 private const val REFRESH_DETERMINANT_COEFFICIENT = 0.5F
+private const val ANIMATION_DURATION = 150L
 
 private const val UNDEFINED = -1
 private const val SCROLL_UP = 0
@@ -64,7 +61,7 @@ class IOSSwipeRefreshLayout @JvmOverloads constructor(
     private val animation = object : Animation() {
         override fun applyTransformation(interpolatedTime: Float, t: Transformation?) {
             scrollableChild?.let {
-                val endTarget = 0
+                val endTarget = it.marginTop
                 val from = consumedScrollDistance
                 val targetTop = from + ((endTarget - from) * interpolatedTime).toInt()
                 val offset = (targetTop - it.top)
@@ -73,7 +70,7 @@ class IOSSwipeRefreshLayout @JvmOverloads constructor(
             }
         }
     }.apply {
-        duration = 150
+        duration = ANIMATION_DURATION
         interpolator = AccelerateDecelerateInterpolator()
         setAnimationListener(object : Animation.AnimationListener {
             override fun onAnimationRepeat(animation: Animation?) {

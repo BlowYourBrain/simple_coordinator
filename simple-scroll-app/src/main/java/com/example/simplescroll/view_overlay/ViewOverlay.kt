@@ -7,11 +7,15 @@ import androidx.core.content.ContextCompat
 
 interface ViewOverlay {
 
+    var isDebug: Boolean
+
     fun onDraw(canvas: Canvas)
 
 }
 
 class ViewOverlayDelegate(private val context: Context) : ViewOverlay {
+
+    override var isDebug: Boolean = false
 
     private val redPaint = Paint().apply {
         color = ContextCompat.getColor(context, android.R.color.holo_red_dark)
@@ -25,8 +29,10 @@ class ViewOverlayDelegate(private val context: Context) : ViewOverlay {
     private val cornerLength = 6.toDp(context)
 
     override fun onDraw(canvas: Canvas) {
-        drawRedRectangle(canvas)
-        drawBlueCorners(canvas)
+        if (isDebug){
+            drawRedRectangle(canvas)
+            drawBlueCorners(canvas)
+        }
     }
 
     private fun drawRedRectangle(canvas: Canvas) {

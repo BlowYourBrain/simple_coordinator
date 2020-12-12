@@ -11,9 +11,9 @@ class ConstraintActivity: AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.constraint_activity_layout)
-        Glide.with(this)
-            .load("https://www.google.es/images/srpr/logo11w.png")
-            .into(topContainer)
+//        Glide.with(this)
+//            .load("https://www.google.es/images/srpr/logo11w.png")
+//            .into(topContainer)
 
 //
 //        (motionLayout as MotionLayout).addTransitionListener(

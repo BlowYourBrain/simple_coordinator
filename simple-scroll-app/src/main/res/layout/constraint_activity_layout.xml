@@ -1,49 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/motionLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    app:layoutDescription="@xml/motion_scene"
     tools:motionDebug="SHOW_ALL"
     tools:showPaths="true">
 
-    <ImageView
-        android:id="@+id/topContainer"
-        android:layout_width="0dp"
-        android:layout_height="140dp"
-        android:background="@color/colorAccent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    <com.example.simplescroll.view_overlay.SimpleCustomView
+        android:layout_width="200dp"
+        android:layout_height="200dp"/>
 
-    <androidx.constraintlayout.widget.Guideline
-        android:id="@+id/guideline"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintGuide_percent="0.5" />
-
-    <!--    <androidx.core.widget.NestedScrollView-->
-    <!--        android:id="@+id/nestedScrollView"-->
-    <!--        android:layout_width="0dp"-->
-    <!--        android:layout_height="wrap_content"-->
-    <!--        app:layout_constraintEnd_toEndOf="parent"-->
-    <!--        app:layout_constraintStart_toStartOf="parent"-->
-    <!--        app:layout_constraintTop_toBottomOf="@id/topContainer">-->
-
-    <!--       -->
-
-    <!--    </androidx.core.widget.NestedScrollView>-->
-
-    <TextView
-        android:id="@+id/dummyView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/loren_ipsum"
-        android:textSize="42sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/topContainer" />
-</androidx.constraintlayout.widget.ConstraintLayout>
+</FrameLayout>
